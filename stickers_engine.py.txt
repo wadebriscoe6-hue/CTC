@@ -1,0 +1,149 @@
+"""
+Free Animated Stickers & Social Badges Engine
+Provides a curated collection of free viral stickers (Follow, Subscribe, Like, Emojis, Matrix Cyber),
+automatic sticker placement algorithm with High/Medium/Low density controls,
+and clickable sticker toggles for easy 1-click video customization.
+"""
+
+from typing import List, Dict, Any
+
+class StickerEngine:
+    FREE_STICKERS_CATALOG = [
+        {
+            "id": "stk_follow_tiktok",
+            "name": "➕ Follow @clothtalk88",
+            "category": "Social CTAs",
+            "icon": "➕",
+            "badge_text": "FOLLOW @CLOTHTALK88",
+            "style": "background: linear-gradient(45deg, #00FF66, #25f4ee); color: #000; font-weight: 900; padding: 6px 14px; border-radius: 20px; box-shadow: 0 0 15px rgba(0,255,102,0.6);",
+            "trigger_keywords": ["follow", "subscribe", "clothtalk", "daily", "channel"]
+        },
+        {
+            "id": "stk_like_heart",
+            "name": "❤️ Double Tap / Like",
+            "category": "Social CTAs",
+            "icon": "❤️",
+            "badge_text": "DOUBLE TAP ❤️",
+            "style": "background: linear-gradient(45deg, #FE2C55, #FF0055); color: #FFF; font-weight: 800; padding: 6px 12px; border-radius: 18px; box-shadow: 0 0 15px rgba(254,44,85,0.6);",
+            "trigger_keywords": ["like", "agree", "resonate", "double tap", "love"]
+        },
+        {
+            "id": "stk_share_arrow",
+            "name": "🚀 Share to a Friend",
+            "category": "Social CTAs",
+            "icon": "🚀",
+            "badge_text": "SHARE WITH A BROTHER ↗",
+            "style": "background: linear-gradient(45deg, #A855F7, #6366F1); color: #FFF; font-weight: 800; padding: 6px 12px; border-radius: 18px; box-shadow: 0 0 15px rgba(168,85,247,0.6);",
+            "trigger_keywords": ["share", "send", "friend", "brother", "family"]
+        },
+        {
+            "id": "stk_comment_bubble",
+            "name": "💬 Drop a Comment",
+            "category": "Social CTAs",
+            "icon": "💬",
+            "badge_text": "DROP A '💎' BELOW 👇",
+            "style": "background: rgba(15,23,42,0.9); border: 2px solid #00FF66; color: #00FF66; font-weight: 800; padding: 6px 12px; border-radius: 18px;",
+            "trigger_keywords": ["comment", "drop", "opinion", "think", "tell me"]
+        },
+        {
+            "id": "stk_diamond_vvs",
+            "name": "💎 VVS Diamond Glow",
+            "category": "Cloth Talk Icons",
+            "icon": "💎",
+            "badge_text": "DIAMOND MINDSET 💎",
+            "style": "background: rgba(0,240,255,0.15); border: 1.5px solid #00F0FF; color: #00F0FF; font-weight: 900; padding: 6px 12px; border-radius: 16px; box-shadow: 0 0 12px #00F0FF;",
+            "trigger_keywords": ["diamond", "clarity", "vvs", "wealth", "value"]
+        },
+        {
+            "id": "stk_fire_trending",
+            "name": "🔥 Pure Heat / Fire",
+            "category": "Reactions",
+            "icon": "🔥",
+            "badge_text": "PURE HEAT 🔥",
+            "style": "background: linear-gradient(45deg, #FF6B00, #FF0000); color: #FFF; font-weight: 900; padding: 5px 12px; border-radius: 16px; box-shadow: 0 0 12px #FF6B00;",
+            "trigger_keywords": ["truth", "real", "power", "listen", "execute"]
+        },
+        {
+            "id": "stk_crown_king",
+            "name": "👑 Crown of Legacy",
+            "category": "Cloth Talk Icons",
+            "icon": "👑",
+            "badge_text": "STAND ON PRINCIPLES 👑",
+            "style": "background: linear-gradient(45deg, #FFD700, #FFA500); color: #000; font-weight: 900; padding: 5px 12px; border-radius: 16px; box-shadow: 0 0 12px #FFD700;",
+            "trigger_keywords": ["legacy", "father", "son", "king", "standards", "leader"]
+        },
+        {
+            "id": "stk_brain_iq",
+            "name": "🧠 200 IQ Game / Wisdom",
+            "category": "Mindset",
+            "icon": "🧠",
+            "badge_text": "UPGRADE YOUR MINDSET 🧠",
+            "style": "background: rgba(168,85,247,0.2); border: 1.5px solid #A855F7; color: #A855F7; font-weight: 800; padding: 5px 12px; border-radius: 16px;",
+            "trigger_keywords": ["mindset", "think", "discipline", "habits", "game", "secret"]
+        },
+        {
+            "id": "stk_matrix_glitch",
+            "name": "🟢 Matrix Cyber Glitch",
+            "category": "Cyber & Matrix",
+            "icon": "🟢",
+            "badge_text": "[SYSTEM UPGRADE: 100%] ⚡",
+            "style": "background: rgba(0,255,102,0.18); border: 1.5px solid #00FF66; color: #00FF66; font-family: monospace; font-weight: 900; padding: 5px 12px; border-radius: 12px; text-shadow: 0 0 8px #00FF66;",
+            "trigger_keywords": ["matrix", "change", "code", "future", "unlock"]
+        },
+        {
+            "id": "stk_100_percent",
+            "name": "💯 100% Solid Truth",
+            "category": "Reactions",
+            "icon": "💯",
+            "badge_text": "100% CLOTH TALK 💯",
+            "style": "background: rgba(254,44,85,0.2); border: 1.5px solid #FE2C55; color: #FE2C55; font-weight: 900; padding: 5px 12px; border-radius: 16px;",
+            "trigger_keywords": ["never", "always", "foundation", "respect", "stone"]
+        }
+    ]
+
+    def auto_place_stickers(
+        self, 
+        transcript_sentences: List[Dict[str, Any]], 
+        duration_seconds: float, 
+        density: str = "Medium"
+    ) -> List[Dict[str, Any]]:
+        if density == "Off": return []
+
+        placed_stickers = []
+        full_text = " ".join([s.get("text", "") for s in transcript_sentences]).lower()
+
+        # 1. Hook Opener Sticker
+        hook_candidates = [s for s in self.FREE_STICKERS_CATALOG if any(kw in full_text[:60] for kw in s["trigger_keywords"])]
+        hook_stk = hook_candidates[0] if hook_candidates else self.FREE_STICKERS_CATALOG[5]
+        placed_stickers.append({
+            "sticker": hook_stk,
+            "start_time": 0.5,
+            "end_time": min(4.0, duration_seconds * 0.3),
+            "position": "top-right"
+        })
+
+        # 2. Outro Follow CTA
+        outro_stk = self.FREE_STICKERS_CATALOG[0]
+        placed_stickers.append({
+            "sticker": outro_stk,
+            "start_time": max(2.0, duration_seconds - 6.0),
+            "end_time": duration_seconds,
+            "position": "center-float"
+        })
+
+        # 3. Mid-Roll Stickers
+        if density in ["Medium", "High"]:
+            mid_interval = 7.0 if density == "High" else 14.0
+            curr_t = 6.0
+            while curr_t < (duration_seconds - 7.0):
+                avail = [s for s in self.FREE_STICKERS_CATALOG if s["id"] not in [hook_stk["id"], outro_stk["id"]]]
+                chosen = avail[len(placed_stickers) % len(avail)]
+                placed_stickers.append({
+                    "sticker": chosen,
+                    "start_time": round(curr_t, 1),
+                    "end_time": round(curr_t + 3.8, 1),
+                    "position": "top-left" if len(placed_stickers) % 2 == 0 else "top-right"
+                })
+                curr_t += mid_interval
+
+        return placed_stickers

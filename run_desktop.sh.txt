@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+echo -e "${GREEN}=======================================================================${NC}"
+echo -e "${CYAN}  💎 CLOTH TALK AI & OPUSCLIP SUITE - 1-CLICK DESKTOP LAUNCHER${NC}"
+echo -e "${GREEN}  Branded for @clothtalk88 | Jarvis Diamond Protocol & Matrix Engine${NC}"
+echo -e "${GREEN}=======================================================================${NC}"
+echo ""
+
+if ! command -v python3 &> /dev/null; then
+    echo "[-] Python3 not found. Please install Python 3.10+."
+    exit 1
+fi
+
+if [ ! -d ".venv" ]; then
+    echo "[*] Creating isolated virtual environment (.venv)..."
+    python3 -m venv .venv
+fi
+
+source .venv/bin/activate
+pip install -r requirements.txt -q
+python3 test_stability.py
+
+echo -e "${CYAN}[*] Starting Cloth Talk AI Desktop Server on http://localhost:8501...${NC}"
+streamlit run app.py --server.port 8501 --server.headless false

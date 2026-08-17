@@ -1,0 +1,89 @@
+"""
+AI B-Roll Engine & Library Module
+Generates contextual AI video generation prompts, categorizes cinematic b-roll overlays,
+and supports interactive clickable selection and timestamp assignment for 9:16 clips.
+"""
+
+from typing import List, Dict, Any
+
+class AIBrollEngine:
+    BROLL_LIBRARY = [
+        {
+            "id": "broll_diamond_macro",
+            "title": "💎 Diamond Refraction & Cyber Prism",
+            "category": "Luxury & Cyber",
+            "style": "Cinematic 8K Macro",
+            "description": "Slow-motion macro shot of flawless VVS diamond refracting cyan and green laser beams in dark void.",
+            "veo_prompt": "Ultra photorealistic macro slow-motion shot of a spinning flawless diamond refracting emerald green and cyan light beams, pitch black cinematic studio background, 8k resolution, ray tracing.",
+            "visual_icon": "💎",
+            "overlay_color": "rgba(0, 255, 102, 0.35)"
+        },
+        {
+            "id": "broll_philly_skyline",
+            "title": "🏙️ Philadelphia Center City Night Skyline",
+            "category": "Urban & Streets",
+            "style": "Drone Hyperlapse",
+            "description": "Cinematic dusk drone glide through Philadelphia skyline with William Penn atop City Hall and glowing street traffic.",
+            "veo_prompt": "Cinematic 4k drone hyperlapse through downtown Philadelphia at blue hour dusk, illuminated City Hall, neon car light trails along Broad Street, dramatic moody sky.",
+            "visual_icon": "🏙️",
+            "overlay_color": "rgba(0, 240, 255, 0.35)"
+        },
+        {
+            "id": "broll_clothtalk_studio",
+            "title": "🎙️ Vintage Bronze Microphone & Soundwaves",
+            "category": "Studio & Voice",
+            "style": "Shallow Depth Studio",
+            "description": "Close up of vintage dynamic studio microphone with subtle audio spectrum green laser ripples in the background.",
+            "veo_prompt": "High-end podcast studio close up on Shure SM7B microphone with glowing green soundwave particle visualizer in shallow focus bokeh background, cinematic 35mm lens.",
+            "visual_icon": "🎙️",
+            "overlay_color": "rgba(168, 85, 247, 0.35)"
+        },
+        {
+            "id": "broll_boxing_focus",
+            "title": "🥊 High-Intensity Fighter Shadowboxing",
+            "category": "Discipline & Grind",
+            "style": "High-Contrast Monochrome",
+            "description": "Sweat flying in slow motion as a determined fighter shadowboxes under a harsh overhead spotlight.",
+            "veo_prompt": "Dramatic high-contrast slow motion 120fps shot of an athletic boxer throwing a powerful hook punch under dramatic single overhead gym spotlight, sweat particles misting in air.",
+            "visual_icon": "🥊",
+            "overlay_color": "rgba(236, 72, 153, 0.35)"
+        },
+        {
+            "id": "broll_matrix_grid",
+            "title": "⚡ Cyber Matrix Digital Data Stream",
+            "category": "Matrix & Sci-Fi",
+            "style": "Futuristic HUD Overlay",
+            "description": "Volumetric green code cascades forming wireframe architectural grids and pulsing circuits.",
+            "veo_prompt": "Futuristic 3D digital green matrix code rain flowing through wireframe cybernetic city streets, volumetric fog, neon emerald light reflections.",
+            "visual_icon": "⚡",
+            "overlay_color": "rgba(0, 255, 102, 0.45)"
+        },
+        {
+            "id": "broll_father_legacy",
+            "title": "👑 Father & Son Legacy Walk",
+            "category": "Legacy & Family",
+            "style": "Golden Hour Cinematic",
+            "description": "Warm golden hour silhouette of father walking alongside his child, teaching principles of strength and wisdom.",
+            "veo_prompt": "Cinematic 35mm golden hour backlit silhouette of a strong father guiding his young son along a city pathway, warm lens flare, nostalgic emotional lighting, 4k.",
+            "visual_icon": "👑",
+            "overlay_color": "rgba(255, 215, 0, 0.35)"
+        }
+    ]
+
+    def get_recommended_broll(self, transcript_text: str) -> List[Dict[str, Any]]:
+        txt = transcript_text.lower()
+        scored_broll = []
+        for item in self.BROLL_LIBRARY:
+            score = 10
+            if "diamond" in txt and "diamond" in item["id"]: score += 30
+            if any(w in txt for w in ["legacy", "family", "father", "son"]) and "legacy" in item["id"]: score += 35
+            if any(w in txt for w in ["discipline", "strength", "punch", "fight"]) and "boxing" in item["id"]: score += 25
+            if any(w in txt for w in ["cloth talk", "listen", "studio"]) and "studio" in item["id"]: score += 25
+            if any(w in txt for w in ["matrix", "code", "system"]) and "matrix" in item["id"]: score += 25
+
+            item_copy = dict(item)
+            item_copy["relevance_score"] = score
+            scored_broll.append(item_copy)
+
+        scored_broll.sort(key=lambda x: x["relevance_score"], reverse=True)
+        return scored_broll

@@ -1,0 +1,217 @@
+"""
+Audio SFX Module for Streamlit & Web Interface
+Features authentic 16-bit Sega Genesis / Streets of Rage (Yuzo Koshiro inspired) FM Synth
+and retro arcade sound effects synthesized client-side via the Web Audio API.
+"""
+
+def get_web_audio_sfx_script() -> str:
+    return """
+    <script>
+    (function() {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let ctx = null;
+        function getAudioContext() {
+            if (!ctx) ctx = new AudioContext();
+            if (ctx.state === 'suspended') ctx.resume();
+            return ctx;
+        }
+
+        window.playSORPunchSFX = function() {
+            try {
+                const audioCtx = getAudioContext();
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.exponentialRampToValueAtTime(35, now + 0.12);
+                gain.gain.setValueAtTime(0.28, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.14);
+
+                const bufferSize = audioCtx.sampleRate * 0.05;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.3));
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 1400;
+                const nGain = audioCtx.createGain();
+                nGain.gain.setValueAtTime(0.22, now);
+                nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+                noise.connect(filter);
+                filter.connect(nGain);
+                nGain.connect(audioCtx.destination);
+                noise.start(now);
+            } catch (e) {}
+        };
+
+        window.playSORGrandUpperSFX = function() {
+            try {
+                const audioCtx = getAudioContext();
+                const now = audioCtx.currentTime;
+                const osc1 = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc1.type = 'sawtooth';
+                osc2.type = 'square';
+                osc1.frequency.setValueAtTime(140, now);
+                osc1.frequency.exponentialRampToValueAtTime(980, now + 0.18);
+                osc1.frequency.exponentialRampToValueAtTime(320, now + 0.30);
+                osc2.frequency.setValueAtTime(145, now);
+                osc2.frequency.exponentialRampToValueAtTime(1020, now + 0.18);
+                osc2.frequency.exponentialRampToValueAtTime(340, now + 0.30);
+                gain.gain.setValueAtTime(0.18, now);
+                gain.gain.linearRampToValueAtTime(0.24, now + 0.12);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(1800, now);
+                filter.frequency.exponentialRampToValueAtTime(4500, now + 0.18);
+                osc1.connect(filter);
+                osc2.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc1.start(now);
+                osc2.start(now);
+                osc1.stop(now + 0.32);
+                osc2.stop(now + 0.32);
+            } catch (e) {}
+        };
+
+        window.playSORItemPickupSFX = function() {
+            try {
+                const audioCtx = getAudioContext();
+                const now = audioCtx.currentTime;
+                [987.77, 1318.51, 1975.53, 2637.02].forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    const start = now + idx * 0.045;
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(freq, start);
+                    gain.gain.setValueAtTime(0.14, start);
+                    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.18);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(start);
+                    osc.stop(start + 0.18);
+                });
+            } catch (e) {}
+        };
+
+        window.playSORStageClearSFX = function() {
+            try {
+                const audioCtx = getAudioContext();
+                const now = audioCtx.currentTime;
+                const chords = [
+                    { t: 0.00, notes: [440, 554.37, 659.25], dur: 0.14 },
+                    { t: 0.15, notes: [493.88, 622.25, 739.99], dur: 0.14 },
+                    { t: 0.30, notes: [554.37, 659.25, 830.61], dur: 0.14 },
+                    { t: 0.46, notes: [659.25, 830.61, 987.77, 1318.51], dur: 0.45 }
+                ];
+                chords.forEach(c => {
+                    c.notes.forEach(freq => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        const start = now + c.t;
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(freq, start);
+                        gain.gain.setValueAtTime(0.09, start);
+                        gain.gain.exponentialRampToValueAtTime(0.001, start + c.dur);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(start);
+                        osc.stop(start + c.dur);
+                    });
+                });
+            } catch (e) {}
+        };
+
+        window.playSORReadyGoSFX = function() {
+            try {
+                const audioCtx = getAudioContext();
+                const now = audioCtx.currentTime;
+                [880, 1760].forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    const start = now + idx * 0.12;
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, start);
+                    gain.gain.setValueAtTime(0.18, start);
+                    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.35);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(start);
+                    osc.stop(start + 0.35);
+                });
+            } catch (e) {}
+        };
+
+        window.playSORCoinInsertSFX = function() {
+            try {
+                const audioCtx = getAudioContext();
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(987.77, now);
+                osc.frequency.setValueAtTime(1318.51, now + 0.08);
+                gain.gain.setValueAtTime(0.16, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.32);
+            } catch (e) {}
+        };
+
+        window.playSORBossAlertSFX = function() {
+            try {
+                const audioCtx = getAudioContext();
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(650, now);
+                osc.frequency.linearRampToValueAtTime(320, now + 0.25);
+                osc.frequency.linearRampToValueAtTime(650, now + 0.50);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.55);
+            } catch (e) {}
+        };
+
+        function attachListeners() {
+            try {
+                const doc = window.parent ? window.parent.document : document;
+                doc.querySelectorAll('button:not([data-sor-sfx-bound])').forEach(btn => {
+                    btn.setAttribute('data-sor-sfx-bound', 'true');
+                    btn.addEventListener('click', () => {
+                        const txt = (btn.innerText || '').toLowerCase();
+                        if (txt.includes('diamond') || txt.includes('jarvis')) window.playSORItemPickupSFX();
+                        else if (txt.includes('generate') || txt.includes('all 10')) window.playSORStageClearSFX();
+                        else if (txt.includes('trim') || txt.includes('crop') || txt.includes('hook')) window.playSORGrandUpperSFX();
+                        else window.playSORPunchSFX();
+                    });
+                });
+            } catch (err) {}
+        }
+        setInterval(attachListeners, 600);
+    })();
+    </script>
+    """
+
+def inject_audio_sfx_component():
+    try:
+        import streamlit.components.v1 as components
+        components.html(get_web_audio_sfx_script(), height=0, width=0)
+    except Exception:
+        pass

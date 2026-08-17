@@ -1,0 +1,119 @@
+"""
+Jarvis Diamond Protocol Module
+A multi-dimensional AI co-pilot and strategic content optimization engine.
+Evaluates 4 Diamond Facets: Clarity, Cultural Resonance, Kinetic Pacing, and Algorithmic Longevity.
+"""
+
+import re
+import random
+from dataclasses import dataclass
+from typing import Dict, List, Any
+
+@dataclass
+class DiamondAuditResult:
+    overall_diamond_score: int
+    tier_label: str
+    facet_clarity: int
+    facet_resonance: int
+    facet_pacing: int
+    facet_longevity: int
+    strategic_verdict: str
+    actionable_upgrades: List[str]
+    tiktok_optimized_caption: str
+    suggested_audio_hook: str
+
+class JarvisDiamondProtocol:
+    TIER_THRESHOLDS = [
+        (95, "Flawless VVS Diamond 💎 (Top 1% Viral Tier)"),
+        (85, "Brilliant Cut Diamond ⚡ (High-Engagement Viral Tier)"),
+        (75, "Precision Cut Diamond 🎯 (Solid Converting Tier)"),
+        (0, "Raw Uncut Diamond 🔨 (Requires Strategic Polishing)")
+    ]
+
+    def audit_clip(self, text: str, duration_sec: float = 30.0, virality_score: int = 85) -> DiamondAuditResult:
+        clean_text = text.strip()
+        word_count = len(clean_text.split())
+
+        filler_penalty = sum(clean_text.lower().count(f) for f in ["um", "uh", "like", "you know"]) * 3
+        clarity_score = max(55, min(99, 92 - filler_penalty + (5 if word_count > 15 else -5)))
+
+        wisdom_keywords = ["cloth talk", "wisdom", "legacy", "family", "father", "discipline", "respect", "truth", "mindset"]
+        wisdom_hits = sum(1 for kw in wisdom_keywords if kw in clean_text.lower())
+        resonance_score = max(60, min(99, 78 + (wisdom_hits * 6)))
+
+        wps = word_count / max(1.0, duration_sec)
+        pacing_score = max(50, min(98, 96 - int(abs(3.0 - wps) * 16)))
+        longevity_score = max(60, min(99, int((virality_score * 0.7) + (clarity_score * 0.3)) + random.randint(-2, 2)))
+
+        overall = int((clarity_score * 0.25) + (resonance_score * 0.25) + (pacing_score * 0.25) + (longevity_score * 0.25))
+        overall = max(65, min(99, overall))
+
+        tier_label = "Precision Cut Diamond"
+        for thresh, label in self.TIER_THRESHOLDS:
+            if overall >= thresh:
+                tier_label = label
+                break
+
+        upgrades = [
+            f"⚡ **Hook Refinement**: Amplify the first 3 seconds with a pattern-interrupt question: *'Why do 99% of people miss this?'*",
+            f"💎 **Diamond Caption Overlay**: Anchor opening word with glowing neon kinetic typography at 0.0s.",
+            f"🥊 **Streets of Rage SFX Cue**: Layer a 16-bit **Grand Upper** whoosh at 0.0s and a **Heavy Punch** on key emphasis words.",
+            f"🗣️ **Cloth Talk Angle**: Reinforce the core thesis with direct eye-contact to camera.",
+            f"🚀 **Comment Section Provocation**: Pin top comment: *'What principle in this clip resonates most with where you are today?'*"
+        ]
+
+        verdict = f"Jarvis Diamond Protocol confirms high conversion density ({overall}/100) with pacing ({round(wps, 1)} words/sec)."
+        caption = f"Real cloth talk only. 💎 Principles over feelings. #ClothTalk #Wisdom #Legacy #OpusClip"
+        audio_hook = f"🔊 Soundbite: Trigger 16-bit Sega FM synth sub-bass punch at 0.0s with high-octave diamond arpeggio chime."
+
+        return DiamondAuditResult(
+            overall_diamond_score=overall,
+            tier_label=tier_label,
+            facet_clarity=clarity_score,
+            facet_resonance=resonance_score,
+            facet_pacing=pacing_score,
+            facet_longevity=longevity_score,
+            strategic_verdict=verdict,
+            actionable_upgrades=upgrades,
+            tiktok_optimized_caption=caption,
+            suggested_audio_hook=audio_hook
+        )
+
+    def process_interactive_dialogue(self, user_prompt: str, active_clip: Any = None) -> str:
+        p = user_prompt.lower().strip()
+        if not p: return "Jarvis Diamond Protocol online. How can I assist with your 30s/60s/90s video clips, Streets of Rage SFX, or viral strategy today?"
+
+        if "duration" in p or "30" in p or "60" in p or "90" in p:
+            return (
+                "⏱️ **Jarvis Duration Strategy Blueprint (30s vs 60s vs 90s):**\n\n"
+                "1. **⚡ 30-Second Clips:** Rapid discovery & TikTok FYP reach.\n"
+                "2. **🎯 60-Second Clips:** TikTok Creator Rewards Program (60s+) & Reels monetization.\n"
+                "3. **👑 90-Second Clips:** Deep-dive Cloth Talk philosophy & masterclass monologues."
+            )
+        if "streets of rage" in p or "sound effect" in p or "sfx" in p:
+            return (
+                "🥊 **Streets of Rage 16-Bit Audio Sound Design Strategy:**\n\n"
+                "1. **0.0s - The Grand Upper Whoosh ⚡**: Triggers during text animation to grab attention in first 300ms.\n"
+                "2. **The 16-Bit Heavy Punch 💥**: Fires on hard keyword hits (e.g. *'discipline'*, *'legacy'*).\n"
+                "3. **The 1-UP Diamond Chime 💎**: Sweetens positive takeaways.\n"
+                "4. **Stage Clear Victory Fanfare 🏆**: Plays at the CTA moment."
+            )
+        if "hook" in p:
+            return (
+                "💎 **Jarvis Hook Optimization Protocol:**\n\n"
+                "1. **The Polarizing Truth:** *'Most people won't admit this, but here is what happens when you hold the line...'* ⚡\n"
+                "2. **The High-Stakes Curiosity Gap:** *'If nobody told you the truth about legacy yet, pay attention for the next 30 seconds.'* 🎯\n"
+                "3. **The Direct Cloth Talk Challenge:** *'Are you building an empire or making excuses? Listen closely.'* 👑"
+            )
+        if "tiktok" in p:
+            return (
+                "📱 **TikTok & Reels Viral Publishing Blueprint:**\n\n"
+                "> Real cloth talk. When you align your daily habits with timeless principles, the results speak for themselves. 💎\n\n"
+                "**Hashtag Stack:** `#ClothTalk #Wisdom #SelfDiscipline #Legacy #TikTokGrowth #MindsetDaily`\n\n"
+                "Check out the official **[ClothTalk TikTok Page](https://www.tiktok.com/@clothtalk88)** for format inspiration!"
+            )
+        return (
+            "💎 **Jarvis Co-Pilot Response:**\n\n"
+            "- **Strategic Recommendation:** Focus on a 30s target for explosive reach or 60s+ for TikTok monetization.\n"
+            "- **Visual Framing:** Ensure 9:16 vertical crop keeps face/gestures within the safe zone."
+        )

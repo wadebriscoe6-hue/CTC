@@ -1,0 +1,526 @@
+"""
+OpusClip AI + Jarvis Diamond Protocol Video Editing Suite
+Branded for Cloth Talk (@clothtalk88)
+Designed to be ultra simple for teen & beginner creators.
+Features: 1-Click Viral Generator, Free Animated Stickers & Follow Badges (High to Low Density),
+Clickable AI B-Roll Overlays, 30s/60s/90s Duration Targeting, Auto-Generated Kinetic Captions,
+Live 9:16 Video Player Simulation, 1-Click Save to Phone/Desktop, Re-Upload Video Vault,
+Green Matrix Digital Rain, and Streets of Rage 16-Bit SFX.
+"""
+
+import streamlit as st
+import time
+import json
+import random
+from video_engine import VideoProcessingEngine, ViralClip
+from jarvis_protocol import JarvisDiamondProtocol
+from broll_engine import AIBrollEngine
+from stickers_engine import StickerEngine
+from audio_sfx import inject_audio_sfx_component
+from matrix_rain import inject_matrix_rain
+from caption_player import render_interactive_caption_player
+
+# Page Configuration
+st.set_page_config(
+    page_title="Cloth Talk AI | 1-Click Viral Video Editor",
+    page_icon="💎",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Custom High-End Cyber Matrix, Neon & Teen-Friendly Styling CSS
+st.markdown("""
+<style>
+    .stApp {
+        background-color: #0b0f19;
+        color: #f1f5f9;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .brand-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.2rem 1.8rem;
+        background: linear-gradient(135deg, rgba(17, 24, 39, 0.95), rgba(6, 78, 59, 0.4), rgba(30, 27, 75, 0.95));
+        border: 2px solid #00FF66;
+        border-radius: 16px;
+        box-shadow: 0 0 25px rgba(0, 255, 102, 0.25), 0 8px 32px 0 rgba(0, 240, 255, 0.15);
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .brand-left {
+        display: flex;
+        align-items: center;
+        gap: 1.4rem;
+    }
+    .cloth-tiktok-avatar {
+        width: 76px;
+        height: 76px;
+        border-radius: 50%;
+        border: 3px solid #00FF66;
+        box-shadow: 0 0 20px #00FF66, 0 0 35px rgba(0, 255, 102, 0.4);
+        background: radial-gradient(circle at 30% 30%, #064e3b, #022c22, #000000);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .cloth-tiktok-avatar-inner {
+        font-family: 'Impact', 'Arial Black', sans-serif;
+        font-size: 24px;
+        color: #00FF66;
+        text-shadow: 0 0 10px #00FF66;
+        line-height: 1;
+        text-align: center;
+    }
+    .cloth-tiktok-avatar-sub {
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: #FFFFFF;
+        text-transform: uppercase;
+        background: rgba(0,0,0,0.6);
+        padding: 1px 4px;
+        border-radius: 3px;
+        margin-top: 2px;
+    }
+    .brand-title {
+        font-size: 1.85rem;
+        font-weight: 900;
+        background: linear-gradient(90deg, #00FF66, #00F0FF, #A855F7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: 0.5px;
+        margin: 0;
+        text-shadow: 0 0 30px rgba(0, 255, 102, 0.3);
+    }
+    .brand-sub {
+        font-size: 0.92rem;
+        color: #A7F3D0;
+        margin-top: 3px;
+        font-weight: 500;
+    }
+    .tiktok-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(45deg, #00FF66, #25f4ee);
+        color: #000 !important;
+        font-weight: 800;
+        padding: 0.6rem 1.2rem;
+        border-radius: 30px;
+        text-decoration: none !important;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 15px rgba(0, 255, 102, 0.4);
+    }
+    .tiktok-badge:hover {
+        transform: translateY(-2px) scale(1.04);
+        box-shadow: 0 6px 25px rgba(0, 255, 102, 0.7);
+        color: #000 !important;
+    }
+    .dur-badge {
+        font-size: 11px;
+        font-weight: 800;
+        color: #000;
+        background: #00FF66;
+        padding: 2px 7px;
+        border-radius: 12px;
+        margin-left: 6px;
+        display: inline-block;
+    }
+    .score-badge {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #00FF66;
+        background: rgba(0, 255, 102, 0.12);
+        padding: 0.3rem 0.8rem;
+        border-radius: 8px;
+        border: 1px solid rgba(0, 255, 102, 0.4);
+        display: inline-block;
+    }
+    .diamond-badge {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #A855F7;
+        background: rgba(168, 85, 247, 0.15);
+        padding: 0.3rem 0.8rem;
+        border-radius: 8px;
+        border: 1px solid rgba(168, 85, 247, 0.4);
+        display: inline-block;
+    }
+    .step-box {
+        background: rgba(15, 23, 42, 0.85);
+        border: 1.5px solid #00FF66;
+        border-radius: 14px;
+        padding: 14px;
+        margin-bottom: 1rem;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+inject_matrix_rain()
+inject_audio_sfx_component()
+
+if "engine" not in st.session_state:
+    st.session_state.engine = VideoProcessingEngine()
+if "broll_lib" not in st.session_state:
+    st.session_state.broll_lib = AIBrollEngine()
+if "sticker_lib" not in st.session_state:
+    st.session_state.sticker_lib = StickerEngine()
+if "jarvis" not in st.session_state:
+    st.session_state.jarvis = JarvisDiamondProtocol()
+if "clips" not in st.session_state:
+    st.session_state.clips = []
+if "active_clip_idx" not in st.session_state:
+    st.session_state.active_clip_idx = 0
+if "uploaded_transcript_cache" not in st.session_state:
+    st.session_state.uploaded_transcript_cache = None
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = [
+        {"role": "assistant", "content": "💎 **Jarvis Diamond Protocol Online.** Free animated stickers, 30s/60s/90s duration cuts, and 1-click Save to Phone/Desktop are active! Drop any video to begin."}
+    ]
+
+# Header
+st.markdown("""
+<div class="brand-container">
+    <div class="brand-left">
+        <div class="cloth-tiktok-avatar" title="Cloth Talk Official TikTok Logo">
+            <div class="cloth-tiktok-avatar-inner">CT</div>
+            <div class="cloth-tiktok-avatar-sub">TALK 88</div>
+        </div>
+        <div>
+            <h1 class="brand-title">CLOTH TALK AI &bull; OPUS CLIP SUITE</h1>
+            <div class="brand-sub">
+                <span>👑 <strong>Cloth Talk Brand</strong></span> &bull; 
+                <span>✨ <strong>Free Animated Stickers & Follow Badges</strong></span> &bull; 
+                <span>📱 <strong>Save to Phone/Desktop</strong></span>
+            </div>
+        </div>
+    </div>
+    <div>
+        <a href="https://www.tiktok.com/@clothtalk88" target="_blank" class="tiktok-badge">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.47 6.27 6.27 0 0 0 1.83-4.47V8.9a8.18 8.18 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-.83-.33z"/></svg>
+            Follow @clothtalk88
+        </a>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# Sidebar
+with st.sidebar:
+    st.markdown("### 👑 **Official TikTok Creator Station**")
+    st.markdown("""
+    <div style="text-align: center; padding: 12px; background: rgba(0, 255, 102, 0.08); border: 1px solid #00FF66; border-radius: 12px; margin-bottom: 12px;">
+        <div style="font-size: 28px;">👑</div>
+        <div style="font-weight: 800; font-size: 16px; color: #00FF66;">Cloth Talk</div>
+        <div style="font-size: 12px; color: #94A3B8;">@clothtalk88 &bull; Verified TikTok Brand</div>
+        <a href="https://www.tiktok.com/@clothtalk88" target="_blank" style="display: inline-block; margin-top: 8px; font-size: 12px; color: #000; background: #00FF66; padding: 4px 12px; border-radius: 20px; text-decoration: none; font-weight: bold;">Visit Profile ↗</a>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("### ✨ **Sticker Intensity Level**")
+    sticker_density = st.select_slider(
+        "How many stickers to add automatically?",
+        options=["Off", "Low", "Medium", "High"],
+        value="Medium"
+    )
+    
+    st.divider()
+    st.markdown("### ⏱️ **Clip Duration Target**")
+    duration_mode = st.radio(
+        "Select Target Clip Length",
+        ["30s (TikTok Quick Hook)", "60s (Standard Viral Reel)", "90s (Deep-Dive Masterclass)", "Custom Duration"],
+        index=0
+    )
+    
+    custom_dur_sec = 30
+    if duration_mode == "Custom Duration":
+        custom_dur_sec = st.slider("Custom Duration (sec)", min_value=15, max_value=120, value=45, step=5)
+    elif "30s" in duration_mode:
+        custom_dur_sec = 30
+    elif "60s" in duration_mode:
+        custom_dur_sec = 60
+    elif "90s" in duration_mode:
+        custom_dur_sec = 90
+
+    st.divider()
+    st.markdown("### 🥊 **Streets of Rage Arcade Soundboard**")
+    sb_col1, sb_col2 = st.columns(2)
+    with sb_col1:
+        if st.button("💥 Heavy Punch", use_container_width=True): st.toast("🥊 16-Bit Punch!")
+        if st.button("💎 1-UP / Item", use_container_width=True): st.toast("💎 1-UP Chime!")
+        if st.button("🪙 Coin Insert", use_container_width=True): st.toast("🪙 Coin Clink!")
+    with sb_col2:
+        if st.button("⚡ Grand Upper", use_container_width=True): st.toast("⚡ Grand Upper!")
+        if st.button("🏆 Stage Clear", use_container_width=True): st.toast("🏆 Victory Jingle!")
+        if st.button("🚨 Boss Alert", use_container_width=True): st.toast("🚨 Boss Siren!")
+
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "🎬 1. Easy 1-Click Clip Generator",
+    "📱 2. Live Player & Free Stickers Studio",
+    "💎 3. Jarvis Diamond Protocol Co-Pilot",
+    "🚀 4. Save to Phone/Desktop & Re-Upload",
+    "🛡️ 5. Stability & Diagnostics"
+])
+
+# TAB 1
+with tab1:
+    st.markdown("### 🚀 **Create Viral Clips in 3 Easy Steps (Beginner Friendly)**")
+    col1, col2 = st.columns([1.2, 1])
+    with col1:
+        st.markdown("""
+        <div class="step-box">
+            <strong>Step 1: Pick Duration & Sticker Level</strong><br/>
+            Target length: <code>30s / 60s / 90s</code> &bull; Sticker Intensity: <code>High / Medium / Low</code>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        dur_col1, dur_col2, dur_col3 = st.columns(3)
+        with dur_col1:
+            if st.button("⚡ 30s Quick Hook", use_container_width=True, type="primary" if custom_dur_sec==30 else "secondary"):
+                custom_dur_sec = 30
+        with dur_col2:
+            if st.button("🎯 60s Standard Reel", use_container_width=True, type="primary" if custom_dur_sec==60 else "secondary"):
+                custom_dur_sec = 60
+        with dur_col3:
+            if st.button("👑 90s Masterclass", use_container_width=True, type="primary" if custom_dur_sec==90 else "secondary"):
+                custom_dur_sec = 90
+
+        st.caption(f"Targeting: **{custom_dur_sec}s** with **{sticker_density} Stickers**.")
+        st.divider()
+
+        input_type = st.radio("Step 2: Choose Video Input", ["Upload Video / Audio / SRT", "Preset: Cloth Talk Masterclass Monologue", "Paste Raw Transcript / URL"], horizontal=True)
+        active_transcript_data = None
+        
+        if input_type == "Upload Video / Audio / SRT":
+            uploaded_file = st.file_uploader(
+                "Drop video file (MP4, MOV, MKV, MP3, WAV, SRT, TXT)", 
+                type=["mp4", "mov", "mkv", "mp3", "wav", "srt", "txt", "vtt", "json"]
+            )
+            if uploaded_file is not None:
+                upload_res = st.session_state.engine.process_uploaded_file(uploaded_file)
+                if upload_res["success"]:
+                    active_transcript_data = upload_res["transcript"]
+                    st.session_state.uploaded_transcript_cache = active_transcript_data
+                    st.success(f"✅ Loaded: **{upload_res['filename']}** ({upload_res['metadata'].file_size_mb} MB)")
+                else:
+                    st.error(f"Upload issue: {upload_res.get('error')}")
+            elif st.session_state.uploaded_transcript_cache:
+                active_transcript_data = st.session_state.uploaded_transcript_cache
+                
+        elif input_type == "Preset: Cloth Talk Masterclass Monologue":
+            active_transcript_data = st.session_state.engine.extract_or_simulate_transcript(None)
+            st.info("Loaded preset: *Cloth Talk Wisdom Ep. 88 (Masterclass Monologue)*")
+            
+        elif input_type == "Paste Raw Transcript / URL":
+            yt_url = st.text_input("Video or YouTube URL", placeholder="https://www.youtube.com/watch?v=...")
+            custom_text = st.text_area("Paste Transcript Text", height=100)
+            if custom_text.strip():
+                active_transcript_data = st.session_state.engine.extract_or_simulate_transcript(custom_text)
+            else:
+                active_transcript_data = st.session_state.engine.extract_or_simulate_transcript(None)
+        
+        st.markdown("<strong>Step 3: Click Below</strong>", unsafe_allow_html=True)
+        generate_btn = st.button(f"✨ Generate Viral {custom_dur_sec}s Clips with Auto-Stickers", type="primary", use_container_width=True)
+        
+    with col2:
+        st.markdown("#### ⚡ **What Happens Automatically:**")
+        st.markdown(f"""
+        1. **9:16 Center Re-Framing**: Turns wide videos into vertical TikTok format.
+        2. **Auto-Captions**: Generates glowing karaoke subtitles word-by-word.
+        3. **Free Viral Stickers**: Adds `{sticker_density}` density animated stickers.
+        4. **AI B-Roll Overlays**: Suggests cinematic b-roll scenes for the hook.
+        5. **Instant Export**: Ready to save directly to Phone or Desktop!
+        """)
+
+    if generate_btn:
+        with st.spinner(f"🤖 Creating {custom_dur_sec}s clips with auto-stickers and captions..."):
+            time.sleep(0.5)
+            if not active_transcript_data:
+                active_transcript_data = st.session_state.engine.extract_or_simulate_transcript(None)
+            
+            st.session_state.clips = st.session_state.engine.generate_viral_clips(
+                active_transcript_data, 
+                target_clip_count=target_clip_count, 
+                target_duration=custom_dur_sec,
+                sticker_density=sticker_density
+            )
+            st.session_state.active_clip_idx = 0
+            st.success(f"🎉 Created {len(st.session_state.clips)} viral clips ready to preview and save!")
+
+    if st.session_state.clips:
+        st.markdown("---")
+        st.markdown(f"### 🏆 **Your Generated Clips ({len(st.session_state.clips)} Ready)**")
+        for idx, clip in enumerate(st.session_state.clips):
+            c1, c2, c3, c4 = st.columns([3, 1.2, 1.2, 1.2])
+            with c1:
+                stk_count = len(clip.placed_stickers)
+                st.markdown(f"**{clip.title}** <span class='dur-badge'>{clip.target_profile}</span>", unsafe_allow_html=True)
+                st.caption(f"⏱️ Duration: {clip.duration}s &bull; ✨ Stickers: {stk_count} &bull; 🔤 Words: {len(clip.subtitles)}")
+            with c2:
+                st.markdown(f"<div class='score-badge'>🔥 {clip.virality_score}/100</div>", unsafe_allow_html=True)
+            with c3:
+                diamond_res = st.session_state.jarvis.audit_clip(clip.hook_text + " " + clip.body_text, clip.duration, clip.virality_score)
+                st.markdown(f"<div class='diamond-badge'>💎 {diamond_res.overall_diamond_score} VVS</div>", unsafe_allow_html=True)
+            with c4:
+                if st.button(f"Play & Edit #{idx+1}", key=f"select_clip_{idx}"):
+                    st.session_state.active_clip_idx = idx
+                    st.info(f"Selected Clip #{idx+1} for Live Player preview.")
+
+# TAB 2
+with tab2:
+    if not st.session_state.clips:
+        demo_trans = st.session_state.engine.extract_or_simulate_transcript(None)
+        st.session_state.clips = st.session_state.engine.generate_viral_clips(demo_trans, 3, target_duration=custom_dur_sec, sticker_density=sticker_density)
+    
+    active_clip: ViralClip = st.session_state.clips[st.session_state.active_clip_idx]
+    st.markdown("### 📱 **Live 9:16 Video Player & Free Clickable Stickers**")
+    
+    p_col_left, p_col_right = st.columns([1, 1.3])
+    with p_col_left:
+        render_interactive_caption_player(
+            active_clip.title, 
+            active_clip.subtitles, 
+            "Matrix Neon Green", 
+            "bottom",
+            active_clip.selected_broll,
+            active_clip.placed_stickers
+        )
+    with p_col_right:
+        st.markdown("#### ✨ **Clickable Free Stickers & Social Badges**")
+        all_stickers = st.session_state.sticker_lib.FREE_STICKERS_CATALOG
+        s_col1, s_col2 = st.columns(2)
+        for idx, stk in enumerate(all_stickers):
+            target_col = s_col1 if idx % 2 == 0 else s_col2
+            with target_col:
+                is_in_clip = any(p["sticker"]["id"] == stk["id"] for p in active_clip.placed_stickers)
+                btn_txt = f"{stk['icon']} {stk['name']} (Added ✅)" if is_in_clip else f"{stk['icon']} {stk['name']} (+)"
+                if st.button(btn_txt, key=f"stk_toggle_{stk['id']}", use_container_width=True, type="primary" if is_in_clip else "secondary"):
+                    if is_in_clip:
+                        active_clip.placed_stickers = [p for p in active_clip.placed_stickers if p["sticker"]["id"] != stk["id"]]
+                        st.toast(f"Removed {stk['name']}")
+                    else:
+                        active_clip.placed_stickers.append({
+                            "sticker": stk,
+                            "start_time": 2.0,
+                            "end_time": min(active_clip.duration, 7.0),
+                            "position": "top-right",
+                            "label": f"Custom Added {stk['name']}"
+                        })
+                        st.toast(f"Added {stk['name']}!")
+                    st.rerun()
+
+        st.divider()
+        if active_clip.selected_broll:
+            st.info(f"🎥 **Active B-Roll:** {active_clip.selected_broll['title']}")
+            if st.button("❌ Switch to Speaker Only", key="remove_broll_tab2"):
+                active_clip.selected_broll = None
+                st.rerun()
+
+# TAB 3
+with tab3:
+    st.markdown("### 💎 **Jarvis Diamond Protocol — Strategic Intelligence Engine**")
+    if st.session_state.clips:
+        active_clip = st.session_state.clips[st.session_state.active_clip_idx]
+        audit = st.session_state.jarvis.audit_clip(active_clip.hook_text + " " + active_clip.body_text, active_clip.duration, active_clip.virality_score)
+        d1, d2, d3, d4 = st.columns(4)
+        with d1: st.metric("Facet α: Clarity", f"{audit.facet_clarity}/100", "+5 Authority")
+        with d2: st.metric("Facet β: Cloth Talk Wisdom", f"{audit.facet_resonance}/100", "💎 VVS")
+        with d3: st.metric("Facet γ: Kinetic Pacing", f"{audit.facet_pacing}/100", "⚡ Optimal")
+        with d4: st.metric("Facet δ: Longevity & CTA", f"{audit.facet_longevity}/100", "🚀 Save Trigger")
+        st.markdown(f"#### 🏆 **Protocol Tier:** `{audit.tier_label}`")
+        with st.expander("🔍 View Actionable Upgrades from Jarvis", expanded=True):
+            for up in audit.actionable_upgrades: st.markdown(up)
+
+    st.markdown("---")
+    st.markdown("### 💬 **Interactive Jarvis Co-Pilot Dialogue**")
+    for msg in st.session_state.chat_history:
+        with st.chat_message(msg["role"], avatar="💎" if msg["role"] == "assistant" else "👤"):
+            st.markdown(msg["content"])
+
+    user_input = st.chat_input("Ask Jarvis anything...")
+    if user_input:
+        st.session_state.chat_history.append({"role": "user", "content": user_input})
+        with st.chat_message("user", avatar="👤"): st.markdown(user_input)
+        cur_clip = st.session_state.clips[st.session_state.active_clip_idx] if st.session_state.clips else None
+        jarvis_reply = st.session_state.jarvis.process_interactive_dialogue(user_input, cur_clip)
+        st.session_state.chat_history.append({"role": "assistant", "content": jarvis_reply})
+        with st.chat_message("assistant", avatar="💎"): st.markdown(jarvis_reply)
+
+# TAB 4
+with tab4:
+    st.markdown("### 🚀 **Save to Phone / Desktop & Video Re-Upload Vault**")
+    if not st.session_state.clips:
+        st.warning("⚠️ No clips ready yet. Generate clips in Tab 1 first.")
+    else:
+        for idx, clip in enumerate(st.session_state.clips):
+            stk_info = f" | {len(clip.placed_stickers)} Stickers"
+            with st.expander(f"📦 Clip #{idx+1}: {clip.title} ({clip.target_profile}{stk_info})", expanded=(idx==0)):
+                s_col1, s_col2 = st.columns(2)
+                with s_col1:
+                    st.markdown("##### 📱 **1-Click Mobile Phone Download**")
+                    clip_dict = {
+                        "clip_id": clip.clip_id,
+                        "title": clip.title,
+                        "duration_seconds": clip.duration,
+                        "target_profile": clip.target_profile,
+                        "stickers": [p["sticker"]["name"] for p in clip.placed_stickers]
+                    }
+                    st.download_button(
+                        label="📱 Save Video Manifest to Phone (JSON)",
+                        data=json.dumps(clip_dict, indent=2),
+                        file_name=f"{clip.clip_id}_mobile_phone.json",
+                        mime="application/json",
+                        key=f"phone_dl_{idx}",
+                        type="primary"
+                    )
+                    srt_content = st.session_state.engine.export_srt(clip)
+                    st.download_button(
+                        label="📥 Download Auto-Captions (.SRT for CapCut Mobile)",
+                        data=srt_content,
+                        file_name=f"{clip.clip_id}_captions.srt",
+                        mime="text/plain",
+                        key=f"phone_srt_{idx}"
+                    )
+                with s_col2:
+                    st.markdown("##### 💻 **Desktop HD Production Bundle**")
+                    ass_content = st.session_state.engine.export_ass(clip)
+                    st.download_button(
+                        label="🎬 Download Burn-In ASS Subtitles (.ASS)",
+                        data=ass_content,
+                        file_name=f"{clip.clip_id}_burned_in.ass",
+                        mime="text/plain",
+                        key=f"desktop_ass_{idx}"
+                    )
+                    vtt_content = st.session_state.engine.export_vtt(clip)
+                    st.download_button(
+                        label="🌐 Download WebVTT (.VTT)",
+                        data=vtt_content,
+                        file_name=f"{clip.clip_id}.vtt",
+                        mime="text/vtt",
+                        key=f"desktop_vtt_{idx}"
+                    )
+                st.divider()
+                caption_text = f"Real cloth talk only. 💎 {clip.hook_text}\n\n{' '.join(clip.suggested_hashtags)} #ClothTalk #Legacy #{clip.target_profile}Viral"
+                st.text_area("Ready-to-Post Caption", value=caption_text, height=90, key=f"cap_text_{idx}")
+                st.markdown(f"🔗 Upload directly to: **[@clothtalk88 TikTok Profile](https://www.tiktok.com/@clothtalk88)**")
+
+# TAB 5
+with tab5:
+    st.markdown("### 🛡️ **Comprehensive Stability & GitHub Deployment Checks**")
+    if st.button("🧪 Run All 10 Stability Checks Now", type="primary"):
+        from test_stability import run_stability_suite
+        with st.spinner("Running full 10-check test suite..."):
+            results = run_stability_suite()
+            all_passed = True
+            for r in results:
+                if r["status"] == "PASSED": st.success(f"✅ **Check {r['id']} - {r['name']}**: {r['details']} ({r['duration_ms']}ms)")
+                else:
+                    all_passed = False
+                    st.error(f"❌ **Check {r['id']} - {r['name']}**: {r['details']}")
+            if all_passed:
+                st.balloons()
+                st.success("💎 **ALL 10 STABILITY CHECKS PASSED PERFECTLY!** The application is 100% stable and ready for GitHub & Streamlit Cloud deployment.")
